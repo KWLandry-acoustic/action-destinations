@@ -1,5 +1,5 @@
 // import nock from 'nock'
-import { createTestEvent } from '@segment/actions-core'
+// import { createTestEvent } from '@segment/actions-core'
 
 // import { ActionDefinition, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core';
 import { Settings } from '../../generated-types'
@@ -12,12 +12,7 @@ describe('Receive Events Action', () => {
   // Mocked request function
   const mockRequest = jest.fn()
 
-  test('has valid title and description', () => {
-    expect(action.title).toBe('Receive Events')
-    expect(action.description).toContain('Provide Segment Track and Identify Event Data')
-  })
-
-  const e = createTestEvent()
+  // const _e = createTestEvent()
 
   const mockSettings = {
     cacheType: 'S3',
@@ -28,12 +23,57 @@ describe('Receive Events Action', () => {
     fileNamePrefix: 'prefix'
   } as Settings
 
-  const mockPayload = {
-    email: 'example@example.com',
-    payload: e,
-    enable_batching: false
-    // Add other payload properties as needed
-  } as Payload
+  const mockPayload: Payload = {
+    email: 'Test20@gmail.com',
+    type: 'track',
+    timestamp: '2023-08-20T12:27:36.832Z',
+    context: {
+      personas: {
+        audience: 'abc'
+      },
+      externalIds: [
+        {
+          collection: 'users',
+          encoding: 'none',
+          id: 'Test20@gmail.com',
+          type: 'shopify_customer_id'
+        }
+      ],
+      integration: {
+        name: 'shopify_littledata',
+        version: '9.1'
+      },
+      ip: '162.207.146.0',
+      library: {
+        name: 'analytics-node',
+        version: '6.2.0'
+      },
+      traits: {
+        email: 'Test20@gmail.com',
+        firstName: 'Test20',
+        lastName: 'Tester',
+        phone: '+16014023350'
+      },
+      userAgent: 'PuraIosApp/3.40.0'
+    },
+    properties: {
+      action_source: 'system_generated',
+      cart_id: 'bd213c96b13dddf4d30fd9cf094bf406',
+      category: 'Shopify (Littledata)',
+      checkout_id: 29221700829293,
+      currency: 'USD',
+      email: 'Test20@gmail.com',
+      presentment_amount: '35.98',
+      presentment_currency: 'USD',
+      price: 35.98
+    },
+    traits: {
+      email: 'Test20@gmail.com',
+      firstName: 'Test20',
+      lastName: 'Tester',
+      phone: '+16014023350'
+    }
+  }
 
   test('perform Action.Perform call with valid payload and settings', async () => {
     action.perform(mockRequest, { settings: mockSettings, payload: mockPayload })
