@@ -40,14 +40,18 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.query_id'
+        '@if': {
+          exists: { '@path': '$.properties.query_id' },
+          then: { '@path': '$.properties.query_id' },
+          else: { '@path': '$.integrations.Algolia Insights (Actions).query_id' }
+        }
       }
     },
     userToken: {
       type: 'string',
       required: true,
       description: 'The ID associated with the user.',
-      label: 'userToken',
+      label: 'User Token',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -60,11 +64,11 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description: 'The timestamp of the event.',
-      label: 'timestamp',
+      label: 'Timestamp',
       default: { '@path': '$.timestamp' }
     },
     extraProperties: {
-      label: 'extraProperties',
+      label: 'Extra Properties',
       required: false,
       description:
         'Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.',
@@ -77,14 +81,14 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       description: "The name of the event to be send to Algolia. Defaults to 'Product List Filtered'",
       type: 'string',
-      required: true,
+      required: false,
       default: 'Product List Filtered'
     },
     eventType: {
       label: 'Event Type',
       description: "The type of event to send to Algolia. Defaults to 'click'",
       type: 'string',
-      required: true,
+      required: false,
       default: 'click',
       choices: [
         { label: 'view', value: 'view' },
