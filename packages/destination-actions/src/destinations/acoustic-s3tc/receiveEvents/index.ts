@@ -3,7 +3,8 @@ import { Settings } from '../generated-types'
 import { Payload } from '../receiveEvents/generated-types'
 import get from 'lodash/get'
 import { addUpdateEvents } from './eventprocessing'
-import generateS3RequestOptions from '../../../lib/AWS/s3'
+import aws4 from 'aws4'
+
 import { validateSettings } from './preCheck'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -106,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const fileName = settings.fileNamePrefix + `${new Date().toISOString().replace(/(\.|-|:)/g, '_')}` + '.json'
 
     const method = 'PUT'
-    const opts = await generateS3RequestOptions(
+    const opts = await signS3RequestOptions(
       settings.s3_bucket_accesspoint_alias,
       settings.s3_region,
       fileName,
@@ -119,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new InvalidAuthenticationError('Unable to generate correct signature header for AWS S3 Put request.')
     }
 
-    return await request(`https://${opts.host}/${opts.path}`, {
+    return await request(`${opts.host}/${opts.path}`, {
       headers: opts.headers as Record<string, string>,
       method,
       body: opts.body
@@ -127,3 +128,32 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 export default action
+
+async function signS3RequestOptions(
+  bucketName: string,
+  region: string,
+  path: string,
+  method: string,
+  body: string | Buffer,
+  accessKeyId: string,
+  secretAccessKey: string
+) {
+  const opts = {
+    //host: `${bucketName}.s3.amazonaws.com`,
+    host: `https://${bucketName}.s3.${region}.amazonaws.com`,
+    path,
+    body,
+    method,
+    region
+  }
+  return aws4.sign(opts, {
+    accessKeyId,
+    secretAccessKey
+  })
+}
+
+//fundingcircle - segmen - zzz8zifn7otbgx9rrb91e7bi4nwxweuc1a - s3alias
+//host: `${bucketName}.s3.amazonaws.com`,
+//s3_host_name: "s3-eu-central-1.amazonaws.com",
+
+//  < Error > <Code> PermanentRedirect < /Code><Message>The bucket you are attempting to access must be addressed using the specified endpoint. Please send all future requests to this endpoint.</Message > <Endpoint> fundingcircle - segmen - zzz8zifn7otbgx9rrb91e7bi4nwxweuc1a - s3alias.s3.eu - central - 1.amazonaws.com < /Endpoint><Bucket>fundingcircle-segmen-zzz8zifn7otbgx9rrb91e7bi4nwxweuc1a-s3alias</Bucket > <RequestId> 97Z8M8NRQN8HWY04 < /RequestId><HostId>ypgNDoapWeAdMy2w3vgiAvoFlGx1opqU0vwofwdp7frM/ + Uj7Fv3f0wjOT2Mqw7Q54RbWdXYV3DBi6Kx3BHmbWNVInvaLKOq2SPybapseTE=</HostId></Error >
