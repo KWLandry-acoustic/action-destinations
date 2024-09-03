@@ -87,7 +87,7 @@ const destination: DestinationDefinition<Settings> = {
       version: {
         label: `Version:`,
         description: `\n${mod}\n`,
-        default: 'Version 2.3',
+        default: 'Version 2.5',
         type: 'string',
         required: false
       }
